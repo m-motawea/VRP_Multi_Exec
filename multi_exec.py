@@ -50,7 +50,7 @@ def main():
     #print("\n\n")
     if config_file:
         handler = ConfigHandler(config_file)
-        result = handler.execute_config(target_groups, out_file=log_file_path)
+        result = handler.execute_config(target_groups, out_file=log_file_path, var_tree=var_tree)
         with open("multi_exec.json", "w") as result_json:
             json.dump(result, result_json, indent=4)
     else:

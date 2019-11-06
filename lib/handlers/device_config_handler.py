@@ -1,5 +1,6 @@
-from lib.ssh_tools import BaseConnection
 from lib.config_parser import ConfigParser
+from lib.ssh_tools import BaseConnection
+from jinja2 import Template
 import datetime
 
 class ConfigHandler(object):
@@ -14,7 +15,7 @@ class ConfigHandler(object):
         config_groups = self.config_parser.parse(config_text)
         return config_groups
 
-    def execute_config(self, target_groups, log_level=1, out_file=None):
+    def execute_config(self, target_groups, log_level=1, out_file=None, var_tree={}):
         """
         :param target_groups: obtained by parsing the targets file by lib.targets_parser.TargetParser
         :param log_level: between 0 - 1
@@ -26,6 +27,12 @@ class ConfigHandler(object):
         #print("ordered groups")
         #print(ordered_group_config)
         #print("\n\n")
+        host_tree = {}
+        if var_tree:
+            for group in var_tree:
+                for host in var_tree[group]:
+                    host_tree[host] = var_tree[group][host]
+
         for group_config in ordered_group_config:
             execution_devices = []
             if group_config["name"].split(":")[0] == "all":
@@ -62,7 +69,13 @@ class ConfigHandler(object):
                 # TODO render CMDs with host variables
                 # From the (to be created) HostConfigRenderer Class
                 # replace the below group_config with host_config list returned by the HostConfigRenderer Class
-                for cmd in group_config["config"]:
+                config_template = Template("\n".join(group_config["config"]))
+                if not var_tree:
+                    config_text = config_template.render()
+                else:
+                    config_text = config_template.render(**host_tree.get(device["ip"]))
+
+                for cmd in config_text.split("\n"):
                     print("cmd: {}".format(cmd))
 
                     try:
