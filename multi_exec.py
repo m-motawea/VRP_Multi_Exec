@@ -1,5 +1,6 @@
 from lib.handlers.device_config_handler import ConfigHandler
 from lib.targets_parser import TargetParser
+from lib.var_parser import VarParser
 import argparse
 import json
 
@@ -28,6 +29,11 @@ def get_target_groups(targets_path):
     target_groups = target_parser.parse(targets_text)
     return target_groups
 
+def get_complete_variables(variables_path, target_groups):
+    var_parser = VarParser(variables_path)
+    var_tree = var_parser.build_var_tree(target_groups)
+    return var_tree
+
 def main():
     if not module_name and not config_file:
         print("you must specify either a module or a config file.")
@@ -38,6 +44,7 @@ def main():
         exit(0)
 
     target_groups = get_target_groups(targets_file)
+    var_tree = get_complete_variables(vars_file, target_groups)
     #print("target_groups")
     #print(target_groups)
     #print("\n\n")
