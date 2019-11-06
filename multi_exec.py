@@ -9,6 +9,7 @@ argparser.add_argument("-c", "--config", help="path to configuration file")
 argparser.add_argument("-v", "--vars", help="target variables")
 argparser.add_argument("-m", "--module", help="module name")
 argparser.add_argument("-a", "--args", help="module arguments")
+argparser.add_argument("-o", "--output", help="log file location")
 
 args = argparser.parse_args()
 targets_file = args.targets
@@ -16,6 +17,7 @@ config_file = args.config
 vars_file = args.vars
 module_name = args.module
 module_args = args.args
+log_file_path = args.output
 
 
 
@@ -41,7 +43,7 @@ def main():
     #print("\n\n")
     if config_file:
         handler = ConfigHandler(config_file)
-        result = handler.execute_config(target_groups)
+        result = handler.execute_config(target_groups, out_file=log_file_path)
         with open("multi_exec.json", "w") as result_json:
             json.dump(result, result_json, indent=4)
     else:

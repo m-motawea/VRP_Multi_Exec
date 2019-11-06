@@ -22,7 +22,6 @@ class ConfigHandler(object):
         :return:
         """
         json_result = []
-        out_file = str(datetime.datetime.now()) + ".multi_exec.log"
         ordered_group_config = self.config_parser.order(self.config_groups)
         #print("ordered groups")
         #print(ordered_group_config)
@@ -49,6 +48,7 @@ class ConfigHandler(object):
                     hostname=device.get("name", "")
                 )
                 print("connecting to device {}, ip: {}...".format(device.get("name", "UNSPECIFIED"), device["ip"]))
+
                 try:
                     conn.connect()
                     device_shell = conn.get_shell()
@@ -60,10 +60,14 @@ class ConfigHandler(object):
                     continue
 
                 # TODO render CMDs with host variables
-                # From the (to be created) Host Config Renderer Class
+                # From the (to be created) HostConfigRenderer Class
+                # replace the below group_config with host_config list returned by the HostConfigRenderer Class
                 for cmd in group_config["config"]:
+                    print("cmd: {}".format(cmd))
+
                     try:
                         out = conn.shell_exec(device_shell, cmd)
+                        print(out)
                         device_log += out
                     except Exception as e:
                         log_line = "failed to execute <{}> due to execption: {}\nskipping this device".format(cmd, str(e))
@@ -82,6 +86,7 @@ class ConfigHandler(object):
                     conn.close()
                 except:
                     pass
+
 
         with open(out_file, "w") as log:
             for result_dict in json_result:

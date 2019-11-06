@@ -35,7 +35,7 @@ class BaseConnection(object):
     @staticmethod
     def shell_wait(shell):
         while True:
-            if shell.rcv_ready():
+            if shell.recv_ready():
                 break
 
     @staticmethod
