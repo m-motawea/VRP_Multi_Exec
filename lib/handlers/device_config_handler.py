@@ -64,6 +64,7 @@ class ConfigHandler(object):
                     print(log_line)
                     result_dict["success"] = False
                     result_dict["result"] = log_line
+                    json_result.append(result_dict)
                     continue
 
                 # TODO render CMDs with host variables

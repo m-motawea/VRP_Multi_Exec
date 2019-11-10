@@ -44,7 +44,10 @@ def main():
         exit(0)
 
     target_groups = get_target_groups(targets_file)
-    var_tree = get_complete_variables(vars_file, target_groups)
+    if vars_file:
+        var_tree = get_complete_variables(vars_file, target_groups)
+    else:
+        var_tree = {}
     #print("target_groups")
     #print(target_groups)
     #print("\n\n")
