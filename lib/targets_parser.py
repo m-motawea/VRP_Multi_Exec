@@ -28,13 +28,13 @@ class TargetParser(object):
                 if not current_group:
                     raise Exception("Error in line {}. Hosts must be grouped by headers".format(i))
                 parsed_line = line.split()
-                if len(parsed_line) < 3 or len(parsed_line) < 4:
+                if len(parsed_line) < 3 or len(parsed_line) > 4:
                     raise Exception("Line {} is incorrect.".format(i))
                 if len(parsed_line) == 3:
                     host_groups[current_group].append({
-                        "ip": parsed_line[1],
-                        "username": parsed_line[2],
-                        "password": parsed_line[3]
+                        "ip": parsed_line[0],
+                        "username": parsed_line[1],
+                        "password": parsed_line[2]
                     })
                 else:
                     host_groups[current_group].append({
