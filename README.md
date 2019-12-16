@@ -43,7 +43,7 @@ save
 y
 ```
 
-  • Group name followed by the execution order: [PA3:2] means the following commands will be executed on PA3 in order 2.
+  • Group name followed by the execution order: [SITE1:2] means the following commands will be executed on SITE1 in order 2.
   
   • .[all:1] “all” is used to execute on all targets defined. This means it will execute the following commands on all devices in order 1 (first).
   
