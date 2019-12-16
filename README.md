@@ -44,7 +44,9 @@ y
 ```
 
   • Group name followed by the execution order: [PA3:2] means the following commands will be executed on PA3 in order 2.
+  
   • .[all:1] “all” is used to execute on all targets defined. This means it will execute the following commands on all devices in order 1 (first).
+  
   • Note that in both configuration example the first command is “N” this to answer the login prompt for changing the password
 
 4- Run log file: this is specified when executing the script to save a run log for all devices.
