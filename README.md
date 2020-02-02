@@ -54,13 +54,17 @@ y
 5- “multi_exec.json” file: this is generated automatically after running the script. It is a more detailed log.
 
 # How to Use:
-```usage: multi_exec [-h] -t TARGETS [-c CONFIG] [-v VARS] [-m MODULE] [-a ARGS] [-o OUTPUT]```
+```
+usage: multi_exec [-h] -t TARGETS [-c CONFIG] [-v VARS] [-m MODULE] [-a ARGS] [-o OUTPUT]
+```
   ## example:
-  ```.\multi_exec.py -t targets.ini -c config.ini -v vars.ini -o run_log```
+  ```
+     .\multi_exec.py -t targets.ini -c config.ini -v vars.ini -o run_log
+  ```
 
 # Requirements:
 Code dependencies are:
 ```Paramiko``` and ```Jinja2```. You can install them using the requirements file with the code.
-```pip install -r requirements.txt```
-
-    • This tool is developed and tested using Python3.7 but it should be compatible with Python2.x/3.x (not tested).
+```
+pip install -r requirements.txt
+```
