@@ -27,7 +27,7 @@ int_name = Stack-Port2
 ```
 
 3- Configuration file: in jinja2 template format or just plain commands to be executed in order.
-```console
+```ini
 [all:1]
 N
 screen-len 0 temp
