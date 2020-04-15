@@ -59,12 +59,12 @@ usage: multi_exec [-h] -t TARGETS [-c CONFIG] [-v VARS] [-m MODULE] [-a ARGS] [-
 ```
   ## example:
   ```bash
-     .\multi_exec.py -t targets.ini -c config.ini -v vars.ini -o run_log
+  $ ./multi_exec.py -t targets.ini -c config.ini -v vars.ini -o run_log
   ```
 
 # Requirements:
 Code dependencies are:
 ```Paramiko``` and ```Jinja2```. You can install them using the requirements file with the code.
 ```bash
-pip install -r requirements.txt
+$ pip3 install -r requirements.txt
 ```
