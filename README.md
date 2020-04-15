@@ -3,7 +3,7 @@ Automation Tool for Configuring Huawei VRP Devices
 
 # Required Files:
 1- Targets file: which includes the devices IP addresses and login credentials.
-```
+```ini
 [SITE1]
 192.168.23.100 username Passwd12#$
 20.20.20.101 username Passwd12#$
@@ -13,7 +13,7 @@ Automation Tool for Configuring Huawei VRP Devices
 ```
 
 2- Variables file: includes the variables which will be used to render the configuration file (if exists). It supports lists by separating values by “,” like the below “ifaces”.
-```
+```ini
 [all]
 int_name = ETH-Trunk1
 ifaces = GE1/0/0,GE1/0/1
@@ -27,7 +27,7 @@ int_name = Stack-Port2
 ```
 
 3- Configuration file: in jinja2 template format or just plain commands to be executed in order.
-```
+```console
 [all:1]
 N
 screen-len 0 temp
@@ -54,17 +54,17 @@ y
 5- “multi_exec.json” file: this is generated automatically after running the script. It is a more detailed log.
 
 # How to Use:
-```
+```bash
 usage: multi_exec [-h] -t TARGETS [-c CONFIG] [-v VARS] [-m MODULE] [-a ARGS] [-o OUTPUT]
 ```
   ## example:
-  ```
+  ```bash
      .\multi_exec.py -t targets.ini -c config.ini -v vars.ini -o run_log
   ```
 
 # Requirements:
 Code dependencies are:
 ```Paramiko``` and ```Jinja2```. You can install them using the requirements file with the code.
-```
+```bash
 pip install -r requirements.txt
 ```
