@@ -1,4 +1,6 @@
+from datetime import datetime, time
 import paramiko
+import gevent
 
 class BaseConnection(object):
     def __init__(self, ip, username, password=None, key_path=None, hostname=""):
@@ -39,17 +41,19 @@ class BaseConnection(object):
         return True, out.decode()
 
     @staticmethod
-    def shell_wait(shell):
-        while True:
+    def shell_wait(shell, timeout):
+        now = datetime.now().timestamp()
+        while datetime.now().timestamp() < now + timeout:
             if shell.recv_ready():
                 break
+            gevent.sleep(1)
 
     @staticmethod
     def shell_exec(shell, command, timeout=2):
         output = ""
         shell.settimeout(timeout)
         shell.send(command + "\n")
-        BaseConnection.shell_wait(shell)
+        BaseConnection.shell_wait(shell, timeout)
         buffer = shell.recv(1024).decode()
         while buffer:
             output += str(buffer)

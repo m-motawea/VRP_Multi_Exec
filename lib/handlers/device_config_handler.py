@@ -17,7 +17,7 @@ class ConfigHandler(object):
         config_groups = self.config_parser.parse(config_text)
         return config_groups
 
-    def execute_config(self, target_groups, out_file=None, var_tree=None, sequential=False):
+    def execute_config(self, target_groups, out_file=None, var_tree=None, sequential=False, timeout=2):
         out_file = out_file or f"exec_{datetime.datetime.now().timestamp()}.txt"
         var_tree = var_tree or {}
         json_result = []
@@ -40,10 +40,10 @@ class ConfigHandler(object):
             run_threads = []
             if sequential:
                 for device in execution_devices:
-                    self._device_exec(device, json_result, var_tree, host_tree, group_config)
+                    self._device_exec(device, json_result, var_tree, host_tree, group_config, timeout)
             else:
                 for device in execution_devices:
-                    run_threads.append(gevent.spawn(self._device_exec, args=[device, json_result, var_tree, host_tree, group_config]))
+                    run_threads.append(gevent.spawn(self._device_exec, device, json_result, var_tree, host_tree, group_config, timeout))
                 gevent.joinall(run_threads)
 
 
@@ -62,7 +62,7 @@ class ConfigHandler(object):
         return json_result
 
 
-    def _device_exec(self, device, json_result, var_tree, host_tree, group_config):
+    def _device_exec(self, device, json_result, var_tree, host_tree, group_config, timeout):
         device_log = ""
         result_dict = {
             "name": device.get("name", "UNSPECIFIED"),
@@ -76,6 +76,7 @@ class ConfigHandler(object):
                 ip=device["ip"],
                 username=device["username"],
                 password=device["password"],
+                key_path=device["key_filename"],
                 hostname=device.get("name", "")
             )
             conn.connect()
@@ -98,7 +99,7 @@ class ConfigHandler(object):
             self.logger.debug("\n\nip: {} running cmd: {}\n\n".format(device["ip"], cmd))
 
             try:
-                out = conn.shell_exec(device_shell, cmd)
+                out = conn.shell_exec(device_shell, cmd, timeout)
                 self.logger.debug(f"ip: {device['ip']} {out}")
                 device_log += out
             except Exception as e:
