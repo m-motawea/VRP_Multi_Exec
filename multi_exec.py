@@ -1,3 +1,6 @@
+from gevent.monkey import patch_all
+patch_all()
+
 from datetime import datetime
 from lib.handlers.device_config_handler import ConfigHandler, CommandHandler
 from lib.targets_parser import TargetParser
@@ -7,9 +10,7 @@ from loguru import logger
 import sys
 import os
 import click
-from gevent.monkey import patch_all
 
-patch_all()
 
 
 
