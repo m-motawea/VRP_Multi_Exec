@@ -30,7 +30,6 @@ class ConfigParser(object):
         groups = list(config_groups.keys())
         result = []
         order_dict = {}
-        arbitary_config = []
         for group_name in groups:
             if ":" not in group_name:
                 raise Exception("no order found for group: {}".format(group_name))

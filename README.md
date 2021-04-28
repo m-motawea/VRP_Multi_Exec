@@ -53,14 +53,6 @@ y
 
 5- “multi_exec.json” file: this is generated automatically after running the script. It is a more detailed log.
 
-# How to Use:
-```bash
-usage: multi_exec [-h] -t TARGETS [-c CONFIG] [-v VARS] [-m MODULE] [-a ARGS] [-o OUTPUT]
-```
-  ## example:
-  ```bash
-  $ ./multi_exec.py -t targets.ini -c config.ini -v vars.ini -o run_log
-  ```
 
 # Requirements:
 Code dependencies are:

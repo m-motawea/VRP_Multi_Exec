@@ -2,31 +2,27 @@ from lib.config_parser import ConfigParser
 from lib.ssh_tools import BaseConnection
 from jinja2 import Template
 import datetime
+import gevent
 
 class ConfigHandler(object):
-    def __init__(self, config_file_path, is_ordered=True):
+    def __init__(self, logger, config_file_path, is_ordered=True):
+        self.logger = logger
         self.config_groups = self.get_config_groups(config_file_path)
         self.is_ordered = is_ordered
 
     def get_config_groups(self, config_file_path):
-        with open("config.ini", "r") as config_file:
+        with open(config_file_path, "r") as config_file:
             config_text = "\n".join(config_file.readlines())
         self.config_parser = ConfigParser()
         config_groups = self.config_parser.parse(config_text)
         return config_groups
 
-    def execute_config(self, target_groups, log_level=1, out_file=None, var_tree={}):
-        """
-        :param target_groups: obtained by parsing the targets file by lib.targets_parser.TargetParser
-        :param log_level: between 0 - 1
-        :param out_file: output file path. default (datetime.datetime.now().result.log)
-        :return:
-        """
+    def execute_config(self, target_groups, out_file=None, var_tree=None, sequential=False):
+        out_file = out_file or f"exec_{datetime.datetime.now().timestamp()}.txt"
+        var_tree = var_tree or {}
         json_result = []
         ordered_group_config = self.config_parser.order(self.config_groups)
-        #print("ordered groups")
-        #print(ordered_group_config)
-        #print("\n\n")
+
         host_tree = {}
         if var_tree:
             for group in var_tree:
@@ -41,76 +37,85 @@ class ConfigHandler(object):
             else:
                 execution_devices = target_groups[group_config["name"].split(":")[0]]
 
-            for device in execution_devices:
-                device_log = ""
-                result_dict = {
-                    "name": device.get("name", "UNSPECIFIED"),
-                    "ip": device["ip"],
-                    "username": device["username"],
-                }
-                conn = BaseConnection(
-                    ip=device["ip"],
-                    username=device["username"],
-                    password=device["password"],
-                    hostname=device.get("name", "")
-                )
-                print("connecting to device {}, ip: {}...".format(device.get("name", "UNSPECIFIED"), device["ip"]))
-
-                try:
-                    conn.connect()
-                    device_shell = conn.get_shell()
-                except Exception as e:
-                    log_line = "execption {} when connecting to device.".format(str(e))
-                    print(log_line)
-                    result_dict["success"] = False
-                    result_dict["result"] = log_line
-                    json_result.append(result_dict)
-                    continue
-
-                # TODO render CMDs with host variables
-                # From the (to be created) HostConfigRenderer Class
-                # replace the below group_config with host_config list returned by the HostConfigRenderer Class
-                config_template = Template("\n".join(group_config["config"]))
-                if not var_tree:
-                    config_text = config_template.render()
-                else:
-                    config_text = config_template.render(**host_tree.get(device["ip"]))
-
-                for cmd in config_text.split("\n"):
-                    print("cmd: {}".format(cmd))
-
-                    try:
-                        out = conn.shell_exec(device_shell, cmd)
-                        print(out)
-                        device_log += out
-                    except Exception as e:
-                        log_line = "failed to execute <{}> due to execption: {}\nskipping this device".format(cmd, str(e))
-                        print(log_line)
-                        result_dict["success"] = False
-                        result_dict["result"] = device_log
-                        try:
-                            conn.close()
-                        except:
-                            pass
-                        break
-                result_dict["result"] = device_log
-                result_dict["success"] = True
-                json_result.append(result_dict)
-                try:
-                    conn.close()
-                except:
-                    pass
+            run_threads = []
+            if sequential:
+                for device in execution_devices:
+                    self._device_exec(device, json_result, var_tree, host_tree, group_config)
+            else:
+                for device in execution_devices:
+                    run_threads.append(gevent.spawn(self._device_exec, args=[device, json_result, var_tree, host_tree, group_config]))
+                gevent.joinall(run_threads)
 
 
         with open(out_file, "w") as log:
             for result_dict in json_result:
-                log.write("#############################################################################\n")
+                log.write("\n#############################################################################\n")
                 log.write("DEVICE {}, IP {}, USERNAME {}, SUCCESS {}\n".format(
                     result_dict["name"],
                     result_dict["ip"],
                     result_dict["username"],
                     result_dict["success"]
                 ))
+                log.write("#############################################################################\n")
                 log.write(result_dict["result"])
 
         return json_result
+
+
+    def _device_exec(self, device, json_result, var_tree, host_tree, group_config):
+        device_log = ""
+        result_dict = {
+            "name": device.get("name", "UNSPECIFIED"),
+            "ip": device["ip"],
+            "username": device["username"],
+        }
+        self.logger.info("connecting to device {}, ip: {}...".format(device.get("name", "UNSPECIFIED"), device["ip"]))
+
+        try:
+            conn = BaseConnection(
+                ip=device["ip"],
+                username=device["username"],
+                password=device["password"],
+                hostname=device.get("name", "")
+            )
+            conn.connect()
+            device_shell = conn.get_shell()
+        except Exception as e:
+            log_line = "execption {} when connecting to device.".format(str(e))
+            self.logger.critical(log_line)
+            result_dict["success"] = False
+            result_dict["result"] = log_line
+            json_result.append(result_dict)
+            return
+
+        config_template = Template("\n".join(group_config["config"]))
+        if not var_tree:
+            config_text = config_template.render()
+        else:
+            config_text = config_template.render(**host_tree.get(device["ip"], {}))
+
+        for cmd in config_text.split("\n"):
+            self.logger.debug("\n\nip: {} running cmd: {}\n\n".format(device["ip"], cmd))
+
+            try:
+                out = conn.shell_exec(device_shell, cmd)
+                self.logger.debug(f"ip: {device['ip']} {out}")
+                device_log += out
+            except Exception as e:
+                log_line = "ip: {} failed to execute <{}> due to execption: {}\nskipping this device".format(device["ip"], cmd, str(e))
+                self.logger.error(log_line)
+                result_dict["success"] = False
+                result_dict["result"] = device_log
+                try:
+                    conn.close()
+                except:
+                    pass
+                break
+        result_dict["result"] = device_log
+        result_dict["success"] = True
+        json_result.append(result_dict)
+        try:
+            conn.close()
+        except:
+            pass
+        return result_dict["success"]

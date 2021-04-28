@@ -1,9 +1,12 @@
 import paramiko
 
 class BaseConnection(object):
-    def __init__(self, ip, username, password, hostname=""):
+    def __init__(self, ip, username, password=None, key_path=None, hostname=""):
         self.ip = ip
         self.password = password
+        self.key_path = key_path
+        if not any([self.password, self.key_path]) or all([self.password, self.key_path]):
+            raise Exception("must pass only one of key_path or password")
         self.username = username
         self.hostname = hostname
         self.client = None
@@ -12,7 +15,10 @@ class BaseConnection(object):
         self.client = paramiko.SSHClient()
         self.client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         try:
-            self.client.connect(hostname=self.ip, username=self.username, password=self.password)
+            if self.password:
+                self.client.connect(hostname=self.ip, username=self.username, password=self.password)
+            elif self.key_path:
+                self.client.connect(hostname=self.ip, key_filename=self.key_path, username=self.username)
         except Exception as e:
             print("failed to connect due to exception: {}".format(str(e)))
             return False
