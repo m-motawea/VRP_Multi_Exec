@@ -3,3 +3,4 @@ jinja2
 gevent
 loguru
 click
+pyinstaller

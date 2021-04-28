@@ -3,5 +3,7 @@
 *.ini
 *__pycache__*
 .vscode
+dist/*
+build/*
 multi_exec.json
 *vrp_multi_exec-*.txt

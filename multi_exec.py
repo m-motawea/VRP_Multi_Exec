@@ -42,7 +42,7 @@ def config(targets, config, variables=None, output=None, sequential=False, passw
         json.dump(result, result_json, indent=4)
 
 
-@cli.command(help="run generic config template")
+@cli.command(help="run generic ad-hoc commands")
 @click.argument('targets', required=True, type=click.Path(exists=True))
 @click.argument('command', required=True, type=str)
 @click.option('--group', help="targets group to execute on. if not specified will execute on all", required=False, default="", type=str)
