@@ -4,12 +4,14 @@ from jinja2 import Template
 import datetime
 import gevent
 
+
 class ConfigHandler(object):
-    def __init__(self, logger, config_file_path, is_ordered=True):
+    def __init__(self, logger, config_file_path, is_ordered=True, group=None):
         self.logger = logger
+        self.config_parser = ConfigParser()
         self.config_groups = self.get_config_groups(config_file_path)
         self.is_ordered = is_ordered
-        self.config_parser = ConfigParser()
+        self.group = group
 
     def get_config_groups(self, config_file_path):
         with open(config_file_path, "r") as config_file:
@@ -17,7 +19,15 @@ class ConfigHandler(object):
         config_groups = self.config_parser.parse(config_text)
         return config_groups
 
-    def execute_config(self, target_groups, out_file=None, var_tree=None, sequential=False, timeout=2, write_result=True):
+    def execute_config(
+        self,
+        target_groups,
+        out_file=None,
+        var_tree=None,
+        sequential=False,
+        timeout=2,
+        write_result=True,
+    ):
         out_file = out_file or f"exec_{datetime.datetime.now().timestamp()}.txt"
         var_tree = var_tree or {}
         json_result = []
@@ -31,7 +41,10 @@ class ConfigHandler(object):
 
         for group_config in ordered_group_config:
             execution_devices = []
-            if group_config["name"].split(":")[0] == "all":
+            group_name = group_config["name"].split(":")[0]
+            if self.group and group_name != self.group:
+                continue
+            if group_name == "all":
                 for device_list in target_groups.values():
                     execution_devices += device_list
             else:
@@ -40,10 +53,22 @@ class ConfigHandler(object):
             run_threads = []
             if sequential:
                 for device in execution_devices:
-                    self._device_exec(device, json_result, var_tree, host_tree, group_config, timeout)
+                    self._device_exec(
+                        device, json_result, var_tree, host_tree, group_config, timeout
+                    )
             else:
                 for device in execution_devices:
-                    run_threads.append(gevent.spawn(self._device_exec, device, json_result, var_tree, host_tree, group_config, timeout))
+                    run_threads.append(
+                        gevent.spawn(
+                            self._device_exec,
+                            device,
+                            json_result,
+                            var_tree,
+                            host_tree,
+                            group_config,
+                            timeout,
+                        )
+                    )
                 gevent.joinall(run_threads)
 
         if not write_result:
@@ -51,27 +76,38 @@ class ConfigHandler(object):
 
         with open(out_file, "w") as log:
             for result_dict in json_result:
-                log.write("\n#############################################################################\n")
-                log.write("DEVICE {}, IP {}, USERNAME {}, SUCCESS {}\n".format(
-                    result_dict["name"],
-                    result_dict["ip"],
-                    result_dict["username"],
-                    result_dict["success"]
-                ))
-                log.write("#############################################################################\n")
+                log.write(
+                    "\n#############################################################################\n"
+                )
+                log.write(
+                    "DEVICE {}, IP {}, USERNAME {}, SUCCESS {}\n".format(
+                        result_dict["name"],
+                        result_dict["ip"],
+                        result_dict["username"],
+                        result_dict["success"],
+                    )
+                )
+                log.write(
+                    "#############################################################################\n"
+                )
                 log.write(result_dict["result"])
 
         return json_result
 
-
-    def _device_exec(self, device, json_result, var_tree, host_tree, group_config, timeout):
+    def _device_exec(
+        self, device, json_result, var_tree, host_tree, group_config, timeout
+    ):
         device_log = ""
         result_dict = {
             "name": device.get("name", "UNSPECIFIED"),
             "ip": device["ip"],
             "username": device["username"],
         }
-        self.logger.info("connecting to device {}, ip: {}...".format(device.get("name", "UNSPECIFIED"), device["ip"]))
+        self.logger.info(
+            "connecting to device {}, ip: {}...".format(
+                device.get("name", "UNSPECIFIED"), device["ip"]
+            )
+        )
 
         try:
             conn = BaseConnection(
@@ -79,7 +115,7 @@ class ConfigHandler(object):
                 username=device["username"],
                 password=device["password"],
                 key_path=device["key_filename"],
-                hostname=device.get("name", "")
+                hostname=device.get("name", ""),
             )
             conn.connect()
             device_shell = conn.get_shell()
@@ -98,14 +134,18 @@ class ConfigHandler(object):
             config_text = config_template.render(**host_tree.get(device["ip"], {}))
 
         for cmd in config_text.split("\n"):
-            self.logger.debug("\n\nip: {} running cmd: {}\n\n".format(device["ip"], cmd))
+            self.logger.debug(
+                "\n\nip: {} running cmd: {}\n\n".format(device["ip"], cmd)
+            )
 
             try:
                 out = conn.shell_exec(device_shell, cmd, timeout)
                 self.logger.debug(f"ip: {device['ip']} {out}")
                 device_log += out
             except Exception as e:
-                log_line = "ip: {} failed to execute <{}> due to execption: {}\nskipping this device".format(device["ip"], cmd, str(e))
+                log_line = "ip: {} failed to execute <{}> due to execption: {}\nskipping this device".format(
+                    device["ip"], cmd, str(e)
+                )
                 self.logger.error(log_line)
                 result_dict["success"] = False
                 result_dict["result"] = device_log
@@ -126,8 +166,8 @@ class ConfigHandler(object):
 
 class CommandHandler(ConfigHandler):
     def __init__(self, logger, command, group=None, is_ordered=True):
-        group = group or "all"
+        self.group = group or "all"
         self.logger = logger
-        self.config_groups = {"all:1": command.split("&&")}
+        self.config_groups = {f"{self.group}:1": command.split("&&")}
         self.is_ordered = is_ordered
         self.config_parser = ConfigParser()

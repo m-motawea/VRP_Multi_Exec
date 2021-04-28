@@ -1,5 +1,3 @@
-
-
 class ConfigParser(object):
     @staticmethod
     def parse(text):
@@ -21,7 +19,9 @@ class ConfigParser(object):
                 config_groups[current_group] = []
             else:
                 if not current_group:
-                    raise Exception("Error in line {}. Hosts must be grouped by headers".format(i))
+                    raise Exception(
+                        "Error in line {}. Hosts must be grouped by headers".format(i)
+                    )
                 config_groups[current_group].append(line)
         return config_groups
 
@@ -39,9 +39,19 @@ class ConfigParser(object):
                     raise Exception("invalid group name: {}.".format(group_name))
                 group_order = int(parsed_name[1])
                 if order_dict.get(group_order):
-                    raise Exception("order {} in group {} was already used for group {}.".format(group_order, group_name, order_dict[group_order]))
+                    raise Exception(
+                        "order {} in group {} was already used for group {}.".format(
+                            group_order, group_name, order_dict[group_order]
+                        )
+                    )
                 order_dict[group_order] = group_name
 
         for order in sorted(order_dict.keys()):
-            result.append({"name": order_dict[order], "config": config_groups[order_dict[order]], "type": "ordered"})
+            result.append(
+                {
+                    "name": order_dict[order],
+                    "config": config_groups[order_dict[order]],
+                    "type": "ordered",
+                }
+            )
         return result
