@@ -1,5 +1,6 @@
 import configparser
 
+
 class VarParser(object):
     def __init__(self, vars_file_path):
         self.var_file_path = vars_file_path
@@ -35,13 +36,17 @@ class VarParser(object):
                     section_var_tree[group][host] = {}
                     # device specific variables
                     for var in self.config[section]:
-                        section_var_tree[group][host][var] = self.get_variable_value(self.config[section][var])
+                        section_var_tree[group][host][var] = self.get_variable_value(
+                            self.config[section][var]
+                        )
                 else:
                     # group variables
                     section_var_tree[section] = {}
                     group_vars[section] = {}
                     for var in self.config[section]:
-                        group_vars[section][var] = self.get_variable_value(self.config[section][var])
+                        group_vars[section][var] = self.get_variable_value(
+                            self.config[section][var]
+                        )
 
         # add all hosts under a group to the var tree
         for target_group in target_groups:
@@ -69,6 +74,5 @@ class VarParser(object):
                             continue
                         else:
                             section_var_tree[group][host][var] = group_vars[group][var]
-
 
         return section_var_tree
