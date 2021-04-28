@@ -98,11 +98,16 @@ multi_exec config targets.ini config.ini --variables vars.ini --password-prompt
 executes ad-hoc command on a specified group.
 example: 
 ```bash
-multi_exec exec targets.ini ls --variables vars.ini --password-prompt
+multi_exec exec targets.ini ls --password-prompt
 ```
 
-to execute multiple commands use && between commands like, 
+to execute multiple commands use `&&` between commands like:
 ```bash
-multi_exec exec targets.ini "ls && pwd" --variables vars.ini --password-prompt
+multi_exec exec targets.ini "ls && pwd" --password-prompt
+```
+
+you can also make use of `&&` and jinja2 in a script like:
+```bash
+multi_exec exec targets.ini "{% for filename in filenames %} && echo {{ filename }} && {% endfor %}" --variables vars.ini --password-prompt
 ```
     
