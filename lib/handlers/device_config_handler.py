@@ -140,7 +140,7 @@ class ConfigHandler(object):
 
             try:
                 out = conn.shell_exec(device_shell, cmd, timeout)
-                self.logger.debug(f"ip: {device['ip']} {out}")
+                self.logger.info(f"ip: {device['ip']} {out}")
                 device_log += out
             except Exception as e:
                 log_line = "ip: {} failed to execute <{}> due to execption: {}\nskipping this device".format(

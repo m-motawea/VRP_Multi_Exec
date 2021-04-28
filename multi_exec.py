@@ -87,7 +87,7 @@ def config(
         sys.stderr,
         colorize=True,
         format="<green>{time}</green> <level>{message}</level>",
-        filter="vrp_multi_exec",
+        filter=lambda record: record["level"].no >= logger.level(loglevel.upper()).no,
         level=loglevel.upper(),
         backtrace=True,
         diagnose=True,
@@ -175,11 +175,12 @@ def exec(
     loglevel="info",
     output="",
 ):
+    logger.remove(0)
     logger.add(
         sys.stderr,
         colorize=True,
         format="<green>{time}</green> <level>{message}</level>",
-        filter="vrp_multi_exec",
+        filter=lambda record: record["level"].no >= logger.level(loglevel.upper()).no,
         level=loglevel.upper(),
         backtrace=True,
         diagnose=True,
