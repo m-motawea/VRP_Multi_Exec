@@ -135,7 +135,7 @@ class ConfigHandler(object):
 
         for cmd in config_text.splitlines():
             self.logger.debug(
-                "\n\nip: {} running cmd: {}\n\n".format(device["ip"], cmd)
+                "ip: {} running cmd: {}".format(device["ip"], cmd)
             )
 
             try:
