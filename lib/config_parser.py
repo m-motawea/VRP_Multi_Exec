@@ -1,7 +1,7 @@
 class ConfigParser(object):
     @staticmethod
     def parse(text):
-        lines = text.split("\n")
+        lines = text.splitlines()
         if not lines:
             return {}
 

@@ -133,7 +133,7 @@ class ConfigHandler(object):
         else:
             config_text = config_template.render(**host_tree.get(device["ip"], {}))
 
-        for cmd in config_text.split("\n"):
+        for cmd in config_text.splitlines():
             self.logger.debug(
                 "\n\nip: {} running cmd: {}\n\n".format(device["ip"], cmd)
             )
@@ -148,7 +148,7 @@ class ConfigHandler(object):
                 )
                 self.logger.error(log_line)
                 result_dict["success"] = False
-                result_dict["result"] = device_log
+                result_dict["result"] = device_log + log_line
                 try:
                     conn.close()
                 except:

@@ -156,6 +156,13 @@ def config(
     default="info",
     type=click.Choice(["info", "debug", "error", "critical"]),
 )
+@click.option(
+    "--output",
+    help="output file path",
+    required=False,
+    default="",
+    type=click.Path(dir_okay=True),
+)
 def exec(
     targets,
     command,
@@ -166,6 +173,7 @@ def exec(
     timeout=1,
     keyfile=None,
     loglevel="info",
+    output="",
 ):
     logger.add(
         sys.stderr,
@@ -188,7 +196,8 @@ def exec(
         var_tree=var_tree,
         sequential=sequential,
         timeout=timeout,
-        write_result=False,
+        out_file=output,
+        write_result=True if output else False,
     )
     with open("multi_exec.json", "w") as result_json:
         json.dump(result, result_json, indent=4)

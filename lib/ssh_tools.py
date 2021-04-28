@@ -59,7 +59,9 @@ class BaseConnection(object):
     def shell_exec(shell, command, timeout=2):
         output = ""
         shell.settimeout(timeout)
-        shell.send(command + "\n")
+        if not command.endswith("\n"):
+            command += "\n"
+        shell.send(command)
         BaseConnection.shell_wait(shell, timeout)
         buffer = shell.recv(1024).decode()
         while buffer:

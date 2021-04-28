@@ -10,7 +10,7 @@ class TargetParser(object):
             reduce_len = 1
         else:
             reduce_len = 0
-        lines = text.split("\n")
+        lines = text.splitlines()
         if not lines:
             return {}
 
