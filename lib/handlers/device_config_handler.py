@@ -9,15 +9,15 @@ class ConfigHandler(object):
         self.logger = logger
         self.config_groups = self.get_config_groups(config_file_path)
         self.is_ordered = is_ordered
+        self.config_parser = ConfigParser()
 
     def get_config_groups(self, config_file_path):
         with open(config_file_path, "r") as config_file:
             config_text = "\n".join(config_file.readlines())
-        self.config_parser = ConfigParser()
         config_groups = self.config_parser.parse(config_text)
         return config_groups
 
-    def execute_config(self, target_groups, out_file=None, var_tree=None, sequential=False, timeout=2):
+    def execute_config(self, target_groups, out_file=None, var_tree=None, sequential=False, timeout=2, write_result=True):
         out_file = out_file or f"exec_{datetime.datetime.now().timestamp()}.txt"
         var_tree = var_tree or {}
         json_result = []
@@ -46,6 +46,8 @@ class ConfigHandler(object):
                     run_threads.append(gevent.spawn(self._device_exec, device, json_result, var_tree, host_tree, group_config, timeout))
                 gevent.joinall(run_threads)
 
+        if not write_result:
+            return json_result
 
         with open(out_file, "w") as log:
             for result_dict in json_result:
@@ -120,3 +122,12 @@ class ConfigHandler(object):
         except:
             pass
         return result_dict["success"]
+
+
+class CommandHandler(ConfigHandler):
+    def __init__(self, logger, command, group=None, is_ordered=True):
+        group = group or "all"
+        self.logger = logger
+        self.config_groups = {"all:1": command.split("&&")}
+        self.is_ordered = is_ordered
+        self.config_parser = ConfigParser()

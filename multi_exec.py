@@ -1,5 +1,5 @@
 from datetime import datetime
-from lib.handlers.device_config_handler import ConfigHandler
+from lib.handlers.device_config_handler import ConfigHandler, CommandHandler
 from lib.targets_parser import TargetParser
 from lib.var_parser import VarParser
 import json
@@ -28,7 +28,7 @@ def cli():
 @click.option('--timeout', help="timeout for shell output", required=False, default=1, type=int)
 @click.option('--keyfile', help="private key file path", required=False, type=click.Path(exists=True))
 @click.option('--loglevel', help="execution log level", required=False, default="info", type=click.Choice(["info", "debug", "error", "critical"]))
-def config(targets, config, variables=None, output=None, sequential=False, password_prompt=False, timeout=2, keyfile=None, loglevel="info"):
+def config(targets, config, variables=None, output=None, sequential=False, password_prompt=False, timeout=1, keyfile=None, loglevel="info"):
     logger.add(sys.stderr, colorize=True, format="<green>{time}</green> <level>{message}</level>", filter="vrp_multi_exec", level=loglevel.upper(), backtrace=True, diagnose=True)
     if password_prompt:
         password = click.prompt('Please input the password', hide_input=True)
@@ -38,6 +38,30 @@ def config(targets, config, variables=None, output=None, sequential=False, passw
     var_tree = get_complete_variables(variables, target_groups) if variables else {}
     handler = ConfigHandler(logger, config)
     result = handler.execute_config(target_groups, out_file=output, var_tree=var_tree, sequential=sequential, timeout=timeout)
+    with open("multi_exec.json", "w") as result_json:
+        json.dump(result, result_json, indent=4)
+
+
+@cli.command(help="run generic config template")
+@click.argument('targets', required=True, type=click.Path(exists=True))
+@click.argument('command', required=True, type=str)
+@click.option('--group', help="targets group to execute on. if not specified will execute on all", required=False, default="", type=str)
+@click.option('--variables', help="variables file path", required=False, type=click.Path(exists=True))
+@click.option('--sequential', help="execute sequentially", required=False, default=False, is_flag=True)
+@click.option('--password-prompt', help="prompt to enter password", required=False, default=False, is_flag=True)
+@click.option('--timeout', help="timeout for shell output", required=False, default=1, type=int)
+@click.option('--keyfile', help="private key file path", required=False, type=click.Path(exists=True))
+@click.option('--loglevel', help="execution log level", required=False, default="info", type=click.Choice(["info", "debug", "error", "critical"]))
+def exec(targets, command, group="", variables=None, sequential=False, password_prompt=False, timeout=1, keyfile=None, loglevel="info"):
+    logger.add(sys.stderr, colorize=True, format="<green>{time}</green> <level>{message}</level>", filter="vrp_multi_exec", level=loglevel.upper(), backtrace=True, diagnose=True)
+    if password_prompt:
+        password = click.prompt('Please input the password', hide_input=True)
+    else:
+        password = None
+    target_groups = get_target_groups(targets, password, keyfile)
+    handler = CommandHandler(logger, command, group)
+    var_tree = get_complete_variables(variables, target_groups) if variables else {}
+    result = handler.execute_config(target_groups, var_tree=var_tree, sequential=sequential, timeout=timeout, write_result=False)
     with open("multi_exec.json", "w") as result_json:
         json.dump(result, result_json, indent=4)
 
