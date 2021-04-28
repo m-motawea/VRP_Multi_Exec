@@ -1,3 +1,5 @@
+[![Python application](https://github.com/m-motawea/VRP_Multi_Exec/actions/workflows/python-app.yml/badge.svg?branch=master)](https://github.com/m-motawea/VRP_Multi_Exec/actions/workflows/python-app.yml)
+
 # VRP_Multi_Exec
 Automation Tool for Configuring Huawei VRP Devices
 
