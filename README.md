@@ -28,9 +28,9 @@ int_name = Stack-Port1
 int_name = Stack-Port2
 ```
 
-4- Run log file (generated): this is specified when executing the script to save a run log for all devices.
+3- Run log file (generated): this is specified when executing the script to save a run log for all devices.
 
-5- `multi_exec.json` file (generated): this is generated automatically after running the script. It is a more detailed log.
+4- `multi_exec.json` file (generated): this is generated automatically after running the script. It is a more detailed log.
 
 
 # Requirements:
