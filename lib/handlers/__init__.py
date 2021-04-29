@@ -1,1 +1,1 @@
-"""contains handlers used for commands"""
+"""contains handlers used for commands."""

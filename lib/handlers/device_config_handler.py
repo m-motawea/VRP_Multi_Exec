@@ -7,12 +7,11 @@ import gevent
 
 class ConfigHandler(object):
     def __init__(self, logger, config_file_path, group=None):
-        """
-        used to apply configuration template
+        """used to apply configuration template.
 
         Args:
             logger (loguru.logger): logger instance.
-            config_file_path (str): path to the configuration file for config command
+            config_file_path (str): path to the configuration file for config command.
             group ([str], optional): targets group name to execute on. Defaults to None.
         """
         self.logger = logger
@@ -175,11 +174,10 @@ class ConfigHandler(object):
 
 class CommandHandler(ConfigHandler):
     def __init__(self, logger, command, group=None):
-        """
-        used for ad-hoc commands
+        """used for ad-hoc commands.
 
         Args:
-            logger (loguru.logger): logger instance
+            logger (loguru.logger): logger instance.
             command (str): command(s) to execute. to use multiple commands separate them with &&.
             group ([str], optional): targets group name to execute on. Defaults to None.
         """

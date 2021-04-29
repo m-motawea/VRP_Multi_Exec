@@ -6,6 +6,18 @@ import socket
 
 class BaseConnection(object):
     def __init__(self, ip, username, password=None, key_path=None, hostname=""):
+        """base ssh connection object
+
+        Args:
+            ip (str): host ip to connect to
+            username (str): username for auth
+            password (str, optional): password for auth. Defaults to None.
+            key_path (str, optional): path to private key file for auth. Defaults to None.
+            hostname (str, optional): hostname. Defaults to "".
+
+        Raises:
+            Exception: 
+        """
         self.ip = ip
         self.password = password
         self.key_path = key_path
@@ -109,6 +121,18 @@ class BaseConnection(object):
 
 class NetworkDeviceConnection(BaseConnection):
     def __init__(self, ip, username, password, key_path, hostname):
+        """ssh connection object for network devices
+
+        Args:
+            ip (str): host ip to connect to
+            username (str): username for auth
+            password (str, optional): password for auth. Defaults to None.
+            key_path (str, optional): path to private key file for auth. Defaults to None.
+            hostname (str, optional): hostname. Defaults to "".
+
+        Raises:
+            Exception: 
+        """
         super().__init__(ip, username, password=password, key_path=key_path, hostname=hostname)
         self.shell = None
 
