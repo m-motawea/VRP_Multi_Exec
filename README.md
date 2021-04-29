@@ -38,13 +38,6 @@ int_name = Stack-Port2
 4- `multi_exec.json` file (generated): this is generated automatically after running the script. It is a more detailed log.
 
 
-# Requirements:
-Code dependencies are:
-```Paramiko``` and ```Jinja2```. You can install them using the requirements file with the code.
-```bash
-$ pip3 install -r requirements.txt
-```
-
 
 # Install:
 
@@ -64,7 +57,7 @@ Commands:
   config  run generic config template
   exec    run generic config template
 ```
-### Config command:
+### config command:
 
 requires a configuration file in the below format that supports jinja2 template in its content or just plain commands to be executed in order.
 
@@ -116,4 +109,9 @@ you can also make use of `&&` and jinja2 in a script like:
 ```bash
 multi_exec exec targets.ini "{% for filename in filenames %} && echo {{ filename }} && {% endfor %}" --variables vars.ini --password-prompt
 ```
-    
+
+
+### Supported File Formats:
+- `INI`-like: the ones found in `configexamples/ini/` directory and used throught this file.
+- `YAML`: examples in `configexamples/yaml/` directory.
+- `JSOM`: just convert yaml examples to json
