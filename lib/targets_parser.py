@@ -1,8 +1,5 @@
 class TargetParser(object):
     def __init__(self, *args):
-        """
-        :param args: pass the headers you need for the text
-        """
         self.keys = args
 
     def parse(self, text, password=None, key_filename=None):

@@ -7,7 +7,7 @@ class ConfigParser(object):
 
         config_groups = {}
         current_group = None
-        for i in range(0, len(lines)):
+        for i, line in enumerate(lines):
             line = lines[i]
             if not line:
                 continue

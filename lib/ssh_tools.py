@@ -1,6 +1,7 @@
-from datetime import datetime, time
+from datetime import datetime
 import paramiko
 import gevent
+import socket
 
 
 class BaseConnection(object):
@@ -48,29 +49,73 @@ class BaseConnection(object):
         return True, out.decode()
 
     @staticmethod
-    def shell_wait(shell, timeout):
+    def shell_wait(shell, timeout, stderr=False):
         now = datetime.now().timestamp()
         while datetime.now().timestamp() < now + timeout:
-            if shell.recv_ready():
-                break
+            if stderr:
+                if shell.recv_stderr_ready():
+                    break
+            else:
+                if shell.recv_ready():
+                    break
             gevent.sleep(1)
 
     @staticmethod
     def shell_exec(shell, command, timeout=2):
-        output = ""
+        def recv_stdout():
+            output = ""
+            BaseConnection.shell_wait(shell, timeout)
+            try:
+                buffer = shell.recv(1024).decode()
+            except socket.timeout:
+                buffer = None
+            while buffer:
+                output += str(buffer)
+                try:
+                    buffer = shell.recv(1024).decode()
+                except socket.timeout:
+                    buffer = None
+            return output
+
+        def recv_stderr():
+            error = ""
+            BaseConnection.shell_wait(shell, timeout, stderr=True)
+            try:
+                buffer = shell.recv_stderr(1024).decode()
+            except socket.timeout:
+                buffer = None
+            while buffer:
+                error += str(buffer)
+                try:
+                    buffer = shell.recv_stderr(1024).decode()
+                except socket.timeout:
+                    buffer = None
+            return error
+
         shell.settimeout(timeout)
         if not command.endswith("\n"):
             command += "\n"
+
         shell.send(command)
-        BaseConnection.shell_wait(shell, timeout)
-        buffer = shell.recv(1024).decode()
-        while buffer:
-            output += str(buffer)
-            try:
-                buffer = shell.recv(1024).decode()
-            except:
-                buffer = None
-        return output
+        stderr_thread = gevent.spawn(recv_stderr)
+        stdout_thread = gevent.spawn(recv_stdout)
+        gevent.joinall([stdout_thread, stderr_thread])
+        output = stdout_thread.value
+        error = stderr_thread.value
+        return output, error
 
     def close(self):
         self.client.close()
+
+class NetworkDeviceConnection(BaseConnection):
+    def __init__(self, ip, username, password, key_path, hostname):
+        super().__init__(ip, username, password=password, key_path=key_path, hostname=hostname)
+        self.shell = None
+
+    def connect(self):
+        client = super().connect()
+        self.shell = self.get_shell()
+        return client
+
+    def exec(self, command, timeout):
+        return self.shell_exec(self.shell, command, timeout)

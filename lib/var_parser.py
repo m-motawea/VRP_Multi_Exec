@@ -8,7 +8,8 @@ class VarParser(object):
         self.config.read(vars_file_path)
         self.sections = self.config.sections()
 
-    def get_variable_value(self, var):
+    @staticmethod
+    def get_variable_value(var):
         if len(var.split(",")) > 1:
             return var.split(",")
         else:
