@@ -1,4 +1,3 @@
-[![Python application](https://github.com/m-motawea/VRP_Multi_Exec/actions/workflows/python-app.yml/badge.svg?branch=master)](https://github.com/m-motawea/VRP_Multi_Exec/actions/workflows/python-app.yml)
 
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/cb91643173514853a3b93b9da1ee40b6)](https://www.codacy.com/gh/m-motawea/VRP_Multi_Exec/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=m-motawea/VRP_Multi_Exec&amp;utm_campaign=Badge_Grade)
 
