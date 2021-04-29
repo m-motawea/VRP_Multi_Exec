@@ -20,7 +20,6 @@ class ConfigHandler(object):
         self.config_groups = self.config_parser.parse()
         self.group = group
 
-
     def execute_config(
         self,
         target_groups,
@@ -53,7 +52,9 @@ class ConfigHandler(object):
                 target_group_name = group_config["name"].split(":")[0]
                 execution_devices = target_groups.get(target_group_name, [])
                 if not execution_devices:
-                    self.logger.warning(f"group: {target_group_name} doesn't contain any devices")
+                    self.logger.warning(
+                        f"group: {target_group_name} doesn't contain any devices"
+                    )
 
             run_threads = []
             if sequential:
@@ -138,9 +139,7 @@ class ConfigHandler(object):
             config_text = config_template.render(**host_tree.get(device["ip"], {}))
 
         for cmd in config_text.splitlines():
-            self.logger.debug(
-                "ip: {} running cmd: {}".format(device["ip"], cmd)
-            )
+            self.logger.debug("ip: {} running cmd: {}".format(device["ip"], cmd))
 
             try:
                 out, err = conn.exec(cmd, timeout)

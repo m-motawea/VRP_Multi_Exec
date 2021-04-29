@@ -40,16 +40,17 @@ class BaseParser:
         elif isinstance(self.result, dict):
             if not check(self.result):
                 filtered_result = {}
-        
+
         return filtered_result
 
 
 class BaseParserFactory:
     PARSERS = {
-        ParserType.YAML: BaseParser, # class to create instance of
+        ParserType.YAML: BaseParser,  # class to create instance of
         ParserType.JSON: BaseParser,
         ParserType.INI: BaseParser,
     }
+
     def __init__(self, file_path="", content="") -> None:
         self.file_path = file_path
         self.content = content
@@ -57,7 +58,6 @@ class BaseParserFactory:
         self._parser = None
         self.logger = GlobalLogger.get()
 
-    
     @property
     def parser(self):
         if not self._parser:
@@ -67,7 +67,6 @@ class BaseParserFactory:
             self._parser = self.PARSERS[self.parser_type](self.content)
         return self._parser
 
-
     def _get_parser_type(self, file_path="", content=""):
         if all([file_path, content]) or not any([file_path, content]):
             raise Exception("must pass exactly one of file_path or content.")
@@ -75,7 +74,6 @@ class BaseParserFactory:
         if file_path:
             return self._get_file_type(file_path)
         return self._get_content_type(content)
-    
 
     def _get_file_type(self, file_path):
         with open(file_path, "r") as f:
@@ -98,7 +96,7 @@ class BaseParserFactory:
             return ParserType.JSON
         except Exception as e:
             self.logger.debug(f"failed to load content as json due to error {e}")
-        
+
         try:
             yaml.load(content)
             return ParserType.YAML

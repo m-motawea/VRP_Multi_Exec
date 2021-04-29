@@ -116,6 +116,7 @@ class BaseConnection(object):
     def close(self):
         self.client.close()
 
+
 class NetworkDeviceConnection(BaseConnection):
     def __init__(self, ip, username, password, key_path, hostname):
         """Ssh connection object for network devices.
@@ -130,7 +131,9 @@ class NetworkDeviceConnection(BaseConnection):
         Raises:
             Exception:
         """
-        super().__init__(ip, username, password=password, key_path=key_path, hostname=hostname)
+        super().__init__(
+            ip, username, password=password, key_path=key_path, hostname=hostname
+        )
         self.shell = None
 
     def connect(self):

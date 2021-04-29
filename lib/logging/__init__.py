@@ -24,7 +24,8 @@ class GlobalLogger:
                 sys.stderr,
                 colorize=True,
                 format="<green>{time}</green> <level>{message}</level>",
-                filter=lambda record: record["level"].no >= logger.level(self.level.upper()).no,
+                filter=lambda record: record["level"].no
+                >= logger.level(self.level.upper()).no,
                 level=self.level.upper(),
                 backtrace=True,
                 diagnose=True,

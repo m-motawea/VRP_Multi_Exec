@@ -2,6 +2,7 @@ import yaml
 import json
 from .base import BaseParserFactory, BaseParser, ParserType
 
+
 class INIParser(BaseParser):
     def parse(self):
         lines = self.content.splitlines()
@@ -59,11 +60,12 @@ class INIParser(BaseParser):
             )
         return result
 
+
 class YAMLParser(BaseParser):
     def __init__(self, content) -> None:
         super().__init__(content=content)
         self.ordered_result = []
-    
+
     def parse(self):
         self.ordered_result = yaml.load(self.content)
         self.result = {}
@@ -76,11 +78,12 @@ class YAMLParser(BaseParser):
     def order(self):
         return self.ordered_result
 
+
 class JSONParser(BaseParser):
     def __init__(self, content) -> None:
         super().__init__(content=content)
         self.ordered_result = []
-    
+
     def parse(self):
         self.ordered_result = json.loads(self.content)
         self.result = {}
@@ -93,10 +96,10 @@ class JSONParser(BaseParser):
     def order(self):
         return self.ordered_result
 
+
 class ConfigParserFactory(BaseParserFactory):
     PARSERS = {
         ParserType.INI: INIParser,
         ParserType.YAML: YAMLParser,
         ParserType.JSON: JSONParser,
     }
-
