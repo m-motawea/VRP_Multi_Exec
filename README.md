@@ -17,6 +17,7 @@ dev1 192.168.23.100 username Passwd12#$
 ```
 
 * in case you use `--password-promt` option or use `--keyfile`, you must remove the password value from this file
+* using the same target in multiple groups results in unexpected behaviour
 
 2- Variables file (optional): includes the variables which will be used to render the configuration file (if exists). It supports lists by separating values by “,” like the below “ifaces”.
 ```ini
