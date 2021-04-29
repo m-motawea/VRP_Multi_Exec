@@ -8,7 +8,7 @@ class GlobalLogger:
     def __new__(cls, *args, **kwargs):
         if cls.LOGGER:
             return cls.LOGGER
-        cls.LOGGER = super().__new__(cls, *args, **kwargs)
+        cls.LOGGER = super().__new__(cls)
         return cls.LOGGER
 
     def __init__(self, level="info") -> None:
@@ -19,7 +19,8 @@ class GlobalLogger:
     def logger(self):
         if not self._logger:
             self._logger = logger
-            logger.add(
+            self._logger.remove()
+            self._logger.add(
                 sys.stderr,
                 colorize=True,
                 format="<green>{time}</green> <level>{message}</level>",
@@ -29,6 +30,10 @@ class GlobalLogger:
                 diagnose=True,
             )
         return self._logger
+
+    @classmethod
+    def get(cls):
+        return cls.LOGGER
 
     def __getattr__(self, name):
         return getattr(self._logger, name)

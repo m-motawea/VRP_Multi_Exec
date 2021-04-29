@@ -8,7 +8,6 @@ from lib.parsers.targets import TargetParserFactory
 from lib.var_parser import VarParser
 import json
 from loguru import logger
-import sys
 import os
 import click
 from lib.logging import GlobalLogger
@@ -84,7 +83,7 @@ def config(
     keyfile=None,
     loglevel="info",
 ):
-    logger = GlobalLogger(loglevel)
+    logger = GlobalLogger(loglevel).logger
     if password_prompt:
         password = click.prompt("Please input the password", hide_input=True)
     else:
@@ -168,16 +167,7 @@ def exec(
     loglevel="info",
     output="",
 ):
-    logger.remove(0)
-    logger.add(
-        sys.stderr,
-        colorize=True,
-        format="<green>{time}</green> <level>{message}</level>",
-        filter=lambda record: record["level"].no >= logger.level(loglevel.upper()).no,
-        level=loglevel.upper(),
-        backtrace=True,
-        diagnose=True,
-    )
+    logger = GlobalLogger(loglevel).logger
     if password_prompt:
         password = click.prompt("Please input the password", hide_input=True)
     else:

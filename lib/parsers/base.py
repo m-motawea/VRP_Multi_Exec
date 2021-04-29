@@ -2,7 +2,6 @@ from enum import Enum
 import yaml
 import json
 from lib.logging import GlobalLogger
-import re
 
 
 class ParserType(Enum):
@@ -56,7 +55,7 @@ class BaseParserFactory:
         self.content = content
         self.parser_type = None
         self._parser = None
-        self.logger = GlobalLogger()
+        self.logger = GlobalLogger.get()
 
     
     @property
