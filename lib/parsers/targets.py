@@ -80,22 +80,24 @@ class INIParser(TargetBaseParser):
 class YAMLParser(TargetBaseParser):
     def parse(self, password=None, key_filename=None):
         self.result = yaml.load(self.content)
-        for value in self.result.values():
-            if password:
-                value["password"] = password
-            if key_filename:
-                value["key_filename"] = key_filename
+        for group_devices in self.result.values():
+            for value in group_devices:
+                if not value.get("password"):
+                    value["password"] = password
+                if not value.get("key_filename"):
+                    value["key_filename"] = key_filename
         return self.result
 
 
 class JSONParser(TargetBaseParser):
     def parse(self, password=None, key_filename=None):
         self.result = json.loads(self.content)
-        for value in self.result.values():
-            if password:
-                value["password"] = password
-            if key_filename:
-                value["key_filename"] = key_filename
+        for group_devices in self.result.values():
+            for value in group_devices:
+                if not value.get("password"):
+                    value["password"] = password
+                if not value.get("key_filename"):
+                    value["key_filename"] = key_filename
         return self.result
 
 
