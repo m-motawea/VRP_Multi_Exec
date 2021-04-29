@@ -79,7 +79,7 @@ class INIParser(TargetBaseParser):
 
 class YAMLParser(TargetBaseParser):
     def parse(self, password=None, key_filename=None):
-        self.result = yaml.load(self.content)
+        self.result = yaml.safe_load(self.content)
         for group_devices in self.result.values():
             for value in group_devices:
                 if not value.get("password"):

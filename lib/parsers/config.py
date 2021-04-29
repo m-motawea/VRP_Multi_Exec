@@ -67,7 +67,7 @@ class YAMLParser(BaseParser):
         self.ordered_result = []
 
     def parse(self):
-        self.ordered_result = yaml.load(self.content)
+        self.ordered_result = yaml.safe_load(self.content)
         self.result = {}
         for i, item in enumerate(self.ordered_result):
             item["name"] = f"{item['group']}:{i}"
