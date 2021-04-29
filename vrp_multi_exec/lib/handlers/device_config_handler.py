@@ -1,5 +1,5 @@
-from lib.parsers.config import ConfigParserFactory
-from lib.ssh_tools import NetworkDeviceConnection
+from vrp_multi_exec.lib.parsers.config import ConfigParserFactory
+from vrp_multi_exec.lib.ssh_tools import NetworkDeviceConnection
 from jinja2 import Template
 import datetime
 import gevent

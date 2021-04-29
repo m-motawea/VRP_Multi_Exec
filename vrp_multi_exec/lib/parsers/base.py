@@ -1,7 +1,7 @@
 from enum import Enum
 import yaml
 import json
-from lib.logging import GlobalLogger
+from vrp_multi_exec.lib.logging import GlobalLogger
 
 
 class ParserType(Enum):

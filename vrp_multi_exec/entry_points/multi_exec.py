@@ -3,14 +3,14 @@ from gevent.monkey import patch_all
 patch_all()
 
 from datetime import datetime
-from lib.handlers.device_config_handler import ConfigHandler, CommandHandler
-from lib.parsers.targets import TargetParserFactory
-from lib.parsers.vars import VarParserFactory
+from vrp_multi_exec.lib.handlers.device_config_handler import ConfigHandler, CommandHandler
+from vrp_multi_exec.lib.parsers.targets import TargetParserFactory
+from vrp_multi_exec.lib.parsers.vars import VarParserFactory
 import json
 from loguru import logger
 import os
 import click
-from lib.logging import GlobalLogger
+from vrp_multi_exec.lib.logging import GlobalLogger
 
 
 @click.group()

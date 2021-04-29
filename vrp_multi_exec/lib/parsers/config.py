@@ -1,6 +1,6 @@
 import yaml
 import json
-from .base import BaseParserFactory, BaseParser, ParserType
+from vrp_multi_exec.lib.parsers.base import BaseParserFactory, BaseParser, ParserType
 
 
 class INIParser(BaseParser):
