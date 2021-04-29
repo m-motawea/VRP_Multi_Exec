@@ -4,13 +4,14 @@ patch_all()
 
 from datetime import datetime
 from lib.handlers.device_config_handler import ConfigHandler, CommandHandler
-from lib.targets_parser import TargetParser
+from lib.parsers.targets import TargetParserFactory
 from lib.var_parser import VarParser
 import json
 from loguru import logger
 import sys
 import os
 import click
+from lib.logging import GlobalLogger
 
 
 @click.group()
@@ -83,15 +84,7 @@ def config(
     keyfile=None,
     loglevel="info",
 ):
-    logger.add(
-        sys.stderr,
-        colorize=True,
-        format="<green>{time}</green> <level>{message}</level>",
-        filter=lambda record: record["level"].no >= logger.level(loglevel.upper()).no,
-        level=loglevel.upper(),
-        backtrace=True,
-        diagnose=True,
-    )
+    logger = GlobalLogger(loglevel)
     if password_prompt:
         password = click.prompt("Please input the password", hide_input=True)
     else:
@@ -204,14 +197,13 @@ def exec(
         json.dump(result, result_json, indent=4)
 
 
-def get_target_groups(targets_path, password, key_filename):
+def get_target_groups(targets_path, password, key_filename, content=""):
     if not os.path.exists(targets_path):
         logger.error(f"{targets_path} doesn't exist")
         exit(1)
-    with open(targets_path) as targets_file:
-        targets_text = "\n".join(targets_file.readlines())
-    target_parser = TargetParser()
-    target_groups = target_parser.parse(targets_text, password, key_filename)
+    parser_factory = TargetParserFactory(targets_path, content)
+    target_parser = parser_factory.parser
+    target_groups = target_parser.parse(password, key_filename)
     return target_groups
 
 

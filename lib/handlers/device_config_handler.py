@@ -54,7 +54,10 @@ class ConfigHandler(object):
                 for device_list in target_groups.values():
                     execution_devices += device_list
             else:
-                execution_devices = target_groups[group_config["name"].split(":")[0]]
+                target_group_name = group_config["name"].split(":")[0]
+                execution_devices = target_groups.get(target_group_name, [])
+                if not execution_devices:
+                    self.logger.warning(f"group: {target_group_name} doesn't contain any devices")
 
             run_threads = []
             if sequential:
