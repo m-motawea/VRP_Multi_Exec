@@ -46,6 +46,8 @@ int_name = Stack-Port2
 pip install vrp_multi_exec
 ```
 
+- use binary releases in this repo
+
 # Usage:
 ```bash
 Usage: multi_exec.exe [OPTIONS] COMMAND [ARGS]...
