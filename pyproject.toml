@@ -6,7 +6,7 @@ authors = ["Maged Motawea <magedmotawea@gmail.com>"]
 license = "GPL-3.0"
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.6"
 paramiko = "^2.7.2"
 Jinja2 = "^2.11.3"
 gevent = "^21.1.2"
