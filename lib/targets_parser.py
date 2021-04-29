@@ -1,7 +1,6 @@
 class TargetParser(object):
     def __init__(self, *args):
-        """parser for targets file
-        """
+        """parser for targets file"""
         self.keys = args
 
     def parse(self, text, password=None, key_filename=None):
