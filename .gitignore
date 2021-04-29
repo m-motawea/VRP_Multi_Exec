@@ -1,6 +1,5 @@
 /venv/
 /.idea/
-*.ini
 *__pycache__*
 .vscode
 dist/*

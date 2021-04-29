@@ -1,4 +1,4 @@
-from lib.config_parser import ConfigParser
+from lib.parsers.config import ConfigParserFactory
 from lib.ssh_tools import NetworkDeviceConnection
 from jinja2 import Template
 import datetime
@@ -15,15 +15,10 @@ class ConfigHandler(object):
             group ([str], optional): targets group name to execute on. Defaults to None.
         """
         self.logger = logger
-        self.config_parser = ConfigParser()
-        self.config_groups = self.get_config_groups(config_file_path)
+        parser_factory = ConfigParserFactory(config_file_path)
+        self.config_parser = parser_factory.parser
+        self.config_groups = self.config_parser.parse()
         self.group = group
-
-    def get_config_groups(self, config_file_path):
-        with open(config_file_path, "r") as config_file:
-            config_text = "\n".join(config_file.readlines())
-        config_groups = self.config_parser.parse(config_text)
-        return config_groups
 
     def execute_config(
         self,
@@ -37,7 +32,7 @@ class ConfigHandler(object):
         out_file = out_file or f"exec_{datetime.datetime.now().timestamp()}.txt"
         var_tree = var_tree or {}
         json_result = []
-        ordered_group_config = self.config_parser.order(self.config_groups)
+        ordered_group_config = self.config_parser.order()
 
         host_tree = {}
         if var_tree:
@@ -54,7 +49,12 @@ class ConfigHandler(object):
                 for device_list in target_groups.values():
                     execution_devices += device_list
             else:
-                execution_devices = target_groups[group_config["name"].split(":")[0]]
+                target_group_name = group_config["name"].split(":")[0]
+                execution_devices = target_groups.get(target_group_name, [])
+                if not execution_devices:
+                    self.logger.warning(
+                        f"group: {target_group_name} doesn't contain any devices"
+                    )
 
             run_threads = []
             if sequential:
@@ -139,9 +139,7 @@ class ConfigHandler(object):
             config_text = config_template.render(**host_tree.get(device["ip"], {}))
 
         for cmd in config_text.splitlines():
-            self.logger.debug(
-                "ip: {} running cmd: {}".format(device["ip"], cmd)
-            )
+            self.logger.debug("ip: {} running cmd: {}".format(device["ip"], cmd))
 
             try:
                 out, err = conn.exec(cmd, timeout)
@@ -183,5 +181,12 @@ class CommandHandler(ConfigHandler):
         """
         self.group = group or "all"
         self.logger = logger
-        self.config_groups = {f"{self.group}:1": command.split("&&")}
-        self.config_parser = ConfigParser()
+        parser_factory = ConfigParserFactory(content=self._prepare_content(command))
+        self.config_parser = parser_factory.parser
+        self.config_groups = self.config_parser.parse()
+
+    def _prepare_content(self, command):
+        result = f"[{self.group}:1]\n"
+        for line in command.split("&&"):
+            result += f"{line}\n"
+        return result

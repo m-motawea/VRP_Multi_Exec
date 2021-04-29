@@ -1,0 +1,9 @@
+SITE1:
+  - name: host1
+    ip: 192.168.239.128
+    username: maged
+
+SITE2:
+  - name: host2
+    ip: 192.168.239.129
+    username: maged
