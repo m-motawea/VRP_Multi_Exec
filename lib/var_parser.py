@@ -3,6 +3,11 @@ import configparser
 
 class VarParser(object):
     def __init__(self, vars_file_path):
+        """parser for variables file
+
+        Args:
+            vars_file_path ([str]): path to the variables file
+        """
         self.var_file_path = vars_file_path
         self.config = configparser.ConfigParser()
         self.config.read(vars_file_path)
