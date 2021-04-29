@@ -1,5 +1,5 @@
 from lib.config_parser import ConfigParser
-from lib.ssh_tools import BaseConnection
+from lib.ssh_tools import NetworkDeviceConnection
 from jinja2 import Template
 import datetime
 import gevent
@@ -110,7 +110,7 @@ class ConfigHandler(object):
         )
 
         try:
-            conn = BaseConnection(
+            conn = NetworkDeviceConnection(
                 ip=device["ip"],
                 username=device["username"],
                 password=device["password"],
@@ -118,7 +118,6 @@ class ConfigHandler(object):
                 hostname=device.get("name", ""),
             )
             conn.connect()
-            device_shell = conn.get_shell()
         except Exception as e:
             log_line = "execption {} when connecting to device.".format(str(e))
             self.logger.critical(log_line)
@@ -139,8 +138,11 @@ class ConfigHandler(object):
             )
 
             try:
-                out = conn.shell_exec(device_shell, cmd, timeout)
-                self.logger.info(f"ip: {device['ip']} {out}")
+                out, err = conn.exec(cmd, timeout)
+                self.logger.info(f"ip: {device['ip']} {out} {err}")
+                if err:
+                    device_log += err
+                    raise Exception(err)
                 device_log += out
             except Exception as e:
                 log_line = "ip: {} failed to execute <{}> due to execption: {}\nskipping this device".format(
@@ -151,16 +153,16 @@ class ConfigHandler(object):
                 result_dict["result"] = device_log + log_line
                 try:
                     conn.close()
-                except:
-                    pass
+                except Exception as e:
+                    self.logger.warning(f"error colsing connection: {e}")
                 break
         result_dict["result"] = device_log
         result_dict["success"] = True
         json_result.append(result_dict)
         try:
             conn.close()
-        except:
-            pass
+        except Exception as e:
+            self.logger.warning(f"error colsing connection: {e}")
         return result_dict["success"]
 
 
