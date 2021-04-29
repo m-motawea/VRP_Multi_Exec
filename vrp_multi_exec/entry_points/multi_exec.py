@@ -173,7 +173,7 @@ def exec(
     else:
         password = None
     target_groups = get_target_groups(targets, password, keyfile)
-    handler = CommandHandler(logger, command, group)
+    handler = CommandHandler(command, group)
     var_tree = get_complete_variables(variables, target_groups) if variables else {}
     result = handler.execute_config(
         target_groups,

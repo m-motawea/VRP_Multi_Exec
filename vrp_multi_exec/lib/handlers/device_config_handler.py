@@ -1,12 +1,13 @@
 from vrp_multi_exec.lib.parsers.config import ConfigParserFactory
 from vrp_multi_exec.lib.ssh_tools import NetworkDeviceConnection
+from vrp_multi_exec.lib.logging import GlobalLogger
 from jinja2 import Template
 import datetime
 import gevent
 
 
 class ConfigHandler(object):
-    def __init__(self, logger, config_file_path, group=None):
+    def __init__(self, config_file_path="", content="", group=None):
         """Used to apply configuration template.
 
         Args:
@@ -14,8 +15,8 @@ class ConfigHandler(object):
             config_file_path (str): path to the configuration file for config command.
             group ([str], optional): targets group name to execute on. Defaults to None.
         """
-        self.logger = logger
-        parser_factory = ConfigParserFactory(config_file_path)
+        self.logger = GlobalLogger.get()
+        parser_factory = ConfigParserFactory(config_file_path, content)
         self.config_parser = parser_factory.parser
         self.config_groups = self.config_parser.parse()
         self.group = group
@@ -171,7 +172,7 @@ class ConfigHandler(object):
 
 
 class CommandHandler(ConfigHandler):
-    def __init__(self, logger, command, group=None):
+    def __init__(self, command, group=None):
         """Used for ad-hoc commands.
 
         Args:
@@ -180,7 +181,7 @@ class CommandHandler(ConfigHandler):
             group ([str], optional): targets group name to execute on. Defaults to None.
         """
         self.group = group or "all"
-        self.logger = logger
+        self.logger = GlobalLogger.get()
         parser_factory = ConfigParserFactory(content=self._prepare_content(command))
         self.config_parser = parser_factory.parser
         self.config_groups = self.config_parser.parse()
