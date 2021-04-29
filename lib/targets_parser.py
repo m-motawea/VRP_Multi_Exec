@@ -1,5 +1,6 @@
 class TargetParser(object):
     def __init__(self, *args):
+        """Parser for targets file."""
         self.keys = args
 
     def parse(self, text, password=None, key_filename=None):
@@ -13,7 +14,7 @@ class TargetParser(object):
 
         host_groups = {}
         current_group = None
-        for i in range(0, len(lines)):
+        for i, line in enumerate(lines):
             line = lines[i]
             if not line:
                 continue
