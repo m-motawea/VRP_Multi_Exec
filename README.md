@@ -46,10 +46,11 @@ $ pip3 install -r requirements.txt
 ```
 
 
-# Build:
+# Install:
+
+- via pip
 ```bash
-pip install -r requirements
-pyinstaller --onefile multi_exec.py
+pip install vrp_multi_exec
 ```
 
 # Usage:
