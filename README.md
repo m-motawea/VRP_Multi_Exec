@@ -1,3 +1,4 @@
+[![build-ci](https://github.com/m-motawea/VRP_Multi_Exec/actions/workflows/build.yml/badge.svg)](https://github.com/m-motawea/VRP_Multi_Exec/actions/workflows/build.yml)
 
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/cb91643173514853a3b93b9da1ee40b6)](https://www.codacy.com/gh/m-motawea/VRP_Multi_Exec/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=m-motawea/VRP_Multi_Exec&amp;utm_campaign=Badge_Grade)
 
