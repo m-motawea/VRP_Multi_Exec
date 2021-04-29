@@ -1,10 +1,8 @@
 /venv/
 /.idea/
-*.ini
 *__pycache__*
 .vscode
 dist/*
 build/*
-config/*
 multi_exec.json
 *vrp_multi_exec-*.txt

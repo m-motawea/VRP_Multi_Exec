@@ -1,0 +1,20 @@
+- group: all
+  config: |
+    pwd
+    ls
+    echo "this is all sites"
+
+    {% for filename in filenames %}
+    echo {{ filename }}
+    touch {{ filename }}
+    {% endfor %}
+
+- group: SITE1
+  config: |
+    ls
+    echo "this is site1"
+
+- group: SITE2
+  config: |
+    ls
+    echo "this is site2"

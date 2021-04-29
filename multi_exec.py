@@ -5,7 +5,7 @@ patch_all()
 from datetime import datetime
 from lib.handlers.device_config_handler import ConfigHandler, CommandHandler
 from lib.parsers.targets import TargetParserFactory
-from lib.var_parser import VarParser
+from lib.parsers.vars import VarParserFactory
 import json
 from loguru import logger
 import os
@@ -201,8 +201,9 @@ def get_complete_variables(variables_path, target_groups):
     if not os.path.exists(variables_path):
         logger.error(f"{variables_path} doesn't exist")
         exit(1)
-    var_parser = VarParser(variables_path)
-    var_tree = var_parser.build_var_tree(target_groups)
+    parser_factory = VarParserFactory(variables_path)
+    var_parser = parser_factory.parser
+    var_tree = var_parser.parse(target_groups)
     return var_tree
 
 
