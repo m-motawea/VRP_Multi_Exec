@@ -12,6 +12,11 @@ SITE1:
   192.168.239.128:
     vars:
       filenames:
-        - custom1
-        - custom2
+        - site1
+  
+SITE2:
+  192.168.239.128:
+    vars:
+      filenames:
+        - site2
   

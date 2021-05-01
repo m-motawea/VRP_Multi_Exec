@@ -38,8 +38,9 @@ class ConfigHandler(object):
         host_tree = {}
         if var_tree:
             for group in var_tree:
+                host_tree[group] = {}
                 for host in var_tree[group]:
-                    host_tree[host] = var_tree[group][host]
+                    host_tree[group][host] = var_tree[group][host]
 
         for group_config in ordered_group_config:
             execution_devices = []
@@ -61,7 +62,7 @@ class ConfigHandler(object):
             if sequential:
                 for device in execution_devices:
                     self._device_exec(
-                        device, json_result, var_tree, host_tree, group_config, timeout
+                        device, json_result, host_tree, group_config, timeout, group_name
                     )
             else:
                 for device in execution_devices:
@@ -70,10 +71,10 @@ class ConfigHandler(object):
                             self._device_exec,
                             device,
                             json_result,
-                            var_tree,
                             host_tree,
                             group_config,
                             timeout,
+                            group_name,
                         )
                     )
                 gevent.joinall(run_threads)
@@ -102,7 +103,7 @@ class ConfigHandler(object):
         return json_result
 
     def _device_exec(
-        self, device, json_result, var_tree, host_tree, group_config, timeout
+        self, device, json_result, host_tree, group_config, timeout, group_name
     ):
         device_log = ""
         result_dict = {
@@ -134,10 +135,17 @@ class ConfigHandler(object):
             return
 
         config_template = Template("\n".join(group_config["config"]))
-        if not var_tree:
-            config_text = config_template.render()
+        if group_name != "all":
+            ip_host_vars = host_tree.get(group_name, {}).get(device["ip"], {})
+            name_host_vars = host_tree.get(group_name, {}).get(device.get("name", ""), {})
         else:
-            config_text = config_template.render(**host_tree.get(device["ip"], {}))
+            ip_host_vars = {}
+            name_host_vars = {}
+            for hosts_dict in host_tree.values():
+                ip_host_vars.update(hosts_dict.get(device["ip"], {}))
+                name_host_vars.update(hosts_dict.get(device.get("ip"), {}))
+        ip_host_vars.update(name_host_vars)
+        config_text = config_template.render(**ip_host_vars)
 
         for cmd in config_text.splitlines():
             self.logger.debug("ip: {} running cmd: {}".format(device["ip"], cmd))
